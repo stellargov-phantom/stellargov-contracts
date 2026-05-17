@@ -1,0 +1,127 @@
+   Compiling stellar-governor v0.1.0 (/home/phantom-call/Downloads/stellar-wave5-all (1)/stellargov/stellargov-contracts/contracts/governor)
+warning: unused variable: `bob`
+   --> contracts/voting_token/src/lib.rs:152:13
+    |
+152 |         let bob   = Address::generate(&env);
+    |             ^^^ help: if this is intentional, prefix it with an underscore: `_bob`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling stellar-timelock v0.1.0 (/home/phantom-call/Downloads/stellar-wave5-all (1)/stellargov/stellargov-contracts/contracts/timelock)
+warning: `stellar-voting-token` (lib test) generated 1 warning (run `cargo fix --lib -p stellar-voting-token --tests` to apply 1 suggestion)
+warning: unused imports: `Vec` and `vec`
+  --> contracts/governor/src/lib.rs:15:27
+   |
+15 |     Address, Env, String, Vec, vec,
+   |                           ^^^  ^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0277]: the trait bound `soroban_sdk::Val: TryFromVal<Env, u8>` is not satisfied
+   --> contracts/governor/src/lib.rs:167:13
+    |
+165 |         env.events().publish(
+    |                      ------- required by a bound introduced by this call
+166 |             (symbol_short!("voted"), proposal_id, voter),
+167 |             (support, weight),
+    |             ^^^^^^^^^^^^^^^^^ the trait `TryFromVal<Env, u8>` is not implemented for `soroban_sdk::Val`
+    |
+    = help: the following other types implement trait `TryFromVal<E, V>`:
+              `soroban_sdk::Val` implements `TryFromVal<E, &[u8]>`
+              `soroban_sdk::Val` implements `TryFromVal<E, &str>`
+              `soroban_sdk::Val` implements `TryFromVal<E, ()>`
+              `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1)>`
+              `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2)>`
+              `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3)>`
+              `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3, T4)>`
+              `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3, T4, T5)>`
+            and 112 others
+    = note: required for `u8` to implement `TryIntoVal<Env, soroban_sdk::Val>`
+    = note: required for `soroban_sdk::Val` to implement `TryFromVal<Env, (u8, i128)>`
+    = note: required for `soroban_sdk::Val` to implement `FromVal<Env, (u8, i128)>`
+    = note: required for `(u8, i128)` to implement `IntoVal<Env, soroban_sdk::Val>`
+note: required by a bound in `soroban_sdk::events::Events::publish`
+   --> /home/phantom-call/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/events.rs:91:12
+    |
+ 88 |     pub fn publish<T, D>(&self, topics: T, data: D)
+    |            ------- required by a bound in this associated function
+...
+ 91 |         D: IntoVal<Env, Val>,
+    |            ^^^^^^^^^^^^^^^^^ required by this bound in `Events::publish`
+    = note: the full name for the type has been written to '/home/phantom-call/Downloads/stellar-wave5-all (1)/stellargov/stellargov-contracts/target/debug/deps/stellar_governor-cf46f5e0d0d9b592.long-type-15410426343425411027.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: `OperationState` doesn't implement `Debug`
+   --> contracts/timelock/src/lib.rs:147:9
+    |
+147 |         assert_eq!(op.state, OperationState::Pending);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for `OperationState`
+    |
+    = note: add `#[derive(Debug)]` to `OperationState` or manually `impl Debug for OperationState`
+    = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `OperationState` with `#[derive(Debug)]`
+    |
+ 11 + #[derive(Debug)]
+ 12 | pub enum OperationState { Pending, Ready, Done, Cancelled }
+    |
+
+error[E0277]: the trait bound `soroban_sdk::Val: TryFromVal<Env, u8>` is not satisfied
+  --> contracts/governor/src/lib.rs:61:1
+   |
+61 | #[contractimpl]
+   | ^^^^^^^^^^^^^^^ the trait `TryFromVal<Env, u8>` is not implemented for `soroban_sdk::Val`
+   |
+   = help: the following other types implement trait `TryFromVal<E, V>`:
+             `soroban_sdk::Val` implements `TryFromVal<E, &[u8]>`
+             `soroban_sdk::Val` implements `TryFromVal<E, &str>`
+             `soroban_sdk::Val` implements `TryFromVal<E, ()>`
+             `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1)>`
+             `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2)>`
+             `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3)>`
+             `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3, T4)>`
+             `soroban_sdk::Val` implements `TryFromVal<E, (T0, T1, T2, T3, T4, T5)>`
+           and 112 others
+   = note: required for `soroban_sdk::Val` to implement `FromVal<Env, u8>`
+   = note: required for `u8` to implement `IntoVal<Env, soroban_sdk::Val>`
+   = note: the full name for the type has been written to '/home/phantom-call/Downloads/stellar-wave5-all (1)/stellargov/stellargov-contracts/target/debug/deps/stellar_governor-cf46f5e0d0d9b592.long-type-15410426343425411027.txt'
+   = note: consider using `--verbose` to print the full type name to the console
+   = note: this error originates in the attribute macro `soroban_sdk::contractclient` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `u8: TryFromValForContractFn<Env, soroban_sdk::Val>` is not satisfied
+  --> contracts/governor/src/lib.rs:61:1
+   |
+61 | #[contractimpl]
+   | ^^^^^^^^^^^^^^^ the trait `TryFromVal<Env, soroban_sdk::Val>` is not implemented for `u8`
+   |
+   = help: the following other types implement trait `TryFromVal<E, V>`:
+             `i128` implements `TryFromVal<E, soroban_sdk::Val>`
+             `i128` implements `TryFromVal<Env, i128>`
+             `i32` implements `TryFromVal<E, soroban_sdk::Val>`
+             `i32` implements `TryFromVal<Env, i32>`
+             `i64` implements `TryFromVal<E, soroban_sdk::Val>`
+             `i64` implements `TryFromVal<Env, i64>`
+             `u128` implements `TryFromVal<E, soroban_sdk::Val>`
+             `u128` implements `TryFromVal<Env, u128>`
+           and 7 others
+   = note: required for `u8` to implement `TryFromValForContractFn<Env, soroban_sdk::Val>`
+   = note: this error originates in the attribute macro `contractimpl` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: `ProposalState` doesn't implement `Debug`
+   --> contracts/governor/src/lib.rs:299:9
+    |
+299 |         assert_eq!(client.get_proposal(&pid).state, ProposalState::Cancelled);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for `ProposalState`
+    |
+    = note: add `#[derive(Debug)]` to `ProposalState` or manually `impl Debug for ProposalState`
+    = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `ProposalState` with `#[derive(Debug)]`
+    |
+ 20 + #[derive(Debug)]
+ 21 | pub enum ProposalState {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `stellar-timelock` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+warning: `stellar-governor` (lib test) generated 1 warning
+error: could not compile `stellar-governor` (lib test) due to 6 previous errors; 1 warning emitted
