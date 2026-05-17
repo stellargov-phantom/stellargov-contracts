@@ -4,7 +4,7 @@
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-dea584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/Apache-2.0)
 
-**The on-chain heart of the StellarGov governance suite. Secure, modular Soroban smart contracts implementing checkpoints, timelocks, and treasury custody.**
+**The on-chain core of the StellarGov governance suite. Secure, modular Soroban smart contracts implementing checkpoints, timelocks, and treasury custody.**
 
 ---
 
@@ -20,7 +20,7 @@
 
 ---
 
-# 🏗️ Internal Architecture
+# 🏗️ Internal Architecture & State Transitions
 
 ```mermaid
 graph TD
@@ -40,6 +40,36 @@ graph TD
         TR -- "Releases Funds / Calls Contracts" --> Ext[Target Contracts / Recipient]
     end
 ```
+
+---
+
+# 📋 Detailed Smart Contract Specification
+
+### 1. Governor State Machine
+Proposals in the `Governor` contract transition through the following states defined by the `ProposalState` enum:
+*   `Pending`: Proposal created, waiting for `voting_delay` ledgers to pass.
+*   `Active`: Voting is open. Members can cast `For`, `Against`, or `Abstain` votes.
+*   `Defeated`: Voting period ended, and the proposal failed to meet the quorum or support threshold.
+*   `Succeeded`: Proposal met both quorum and support thresholds. Ready to be queued.
+*   `Queued`: Proposal successfully queued in the Timelock.
+*   `Executed`: Proposal actions successfully executed.
+*   `Expired`: Proposal passed but was not executed before the grace period ended.
+
+### 2. Checkpoint Balance Storage Structure
+To prevent voting balance manipulation within the same ledger (e.g., flash loans or rapid token recycling), the `VotingToken` contract leverages chronological checkpoint arrays stored in the contract's persistent storage:
+
+```rust
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Checkpoint {
+    pub ledger: u32,
+    pub votes: i128,
+}
+```
+
+When a user transfers tokens, the contract updates their checkpoints:
+1.  **Sender Checkpoint:** A new `Checkpoint` is appended with the current ledger index and the decremented voting balance.
+2.  **Recipient Checkpoint:** A new `Checkpoint` is appended with the current ledger index and the incremented voting balance.
+3.  **Binary Search Lookup:** During proposal queries, the Governor invokes `get_past_votes(user, proposal_start_ledger)` which performs a fast binary search over the checkpoints array to determine the user's exact balance at that past block height.
 
 ---
 
@@ -63,6 +93,9 @@ The `Governor` contract exposes highly configurable parameters to fit institutio
 stellargov-contracts/
 ├── contracts/
 │   ├── governor/         # Proposal lifecycle, quorum, and voting checks
+│   │   └── src/
+│   │       ├── lib.rs    # Core state machine functions
+│   │       └── types.rs  # Shared parameter enums and structures
 │   ├── timelock/         # Queue execution delays and admin functions
 │   ├── treasury/         # Vault asset storage and execution controls
 │   └── voting_token/     # Checkpoint-based token ledger logic
@@ -72,14 +105,27 @@ stellargov-contracts/
 
 ---
 
-# 🛠️ Development & Contributing
+# 🛠️ Development, Compilation & Testing
 
-We welcome security audits and community contributions. Please ensure all code additions maintain 100% test coverage.
+### 1. Prerequisites
+Ensure you have the following installed locally:
+*   Rust (v1.75+) with `wasm32-unknown-unknown` target.
+*   Stellar CLI (v21.0.0+) for local contract deployments.
 
-### Local Setup
-1. **Clone the Repo:** `git clone https://github.com/stellargov-phantom/stellargov-contracts.git`
-2. **Build Workspace:** `cargo build --target wasm32-unknown-unknown --release`
-3. **Run Unit Tests:** `cargo test`
+### 2. Local Setup & Building
+Clone the repository and compile the workspace WASM files:
+```bash
+git clone https://github.com/stellargov-phantom/stellargov-contracts.git
+cd stellargov-contracts
+cargo build --target wasm32-unknown-unknown --release
+```
+Optimized `.wasm` binaries will be output to `target/wasm32-unknown-unknown/release/`.
+
+### 3. Running Unit Tests
+The contracts suite contains comprehensive unit tests verifying proposal lifecycles, vote thresholds, checkpoints, and timelocks:
+```bash
+cargo test
+```
 
 ---
 
